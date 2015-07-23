@@ -1,0 +1,125 @@
+<html ng-app="app">
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script src="http://jquery-csv.googlecode.com/git/src/jquery.csv.js"></script>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="jquery.transit.min.js"></script>
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext'>
+		<link rel="stylesheet" type="text/css" href="main.css">
+	</head>
+	<body ng-controller="dat_controller as datcon">
+		<script type = "text/javascript" src = "angular.min.js"></script>
+		<script type = "text/javascript" src = "angular-resource.min.js"></script>
+		<script src="ng-file-upload-shim.min.js"></script>
+		<script src="ng-file-upload.min.js"></script>
+		<div class="left-con">
+			<div class="col-head">Upload to Database</div>
+			<div class="section-content">
+				<div class="add-data">
+					<div class="click-button" ngf-select ng-model="files" ngf-multiple="true">Click to Choose Files</div>
+					<div ngf-drop ng-model="files" class="drop-box" 
+						ngf-drag-over-class="dragover" ngf-multiple="true" ngf-allow-dir="true"
+						ngf-accept="'image/*,application/pdf'">Drop Files Here</div>
+					<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+				</div>
+				<div class="view-data">
+					<div class="text">Files:</div>
+					<div class="data-con">
+						<div ng-click="new_cur_file(f)" class="f" id="{{datcon.cur_file.name == f.name | iif : 'f_active' : 'f'}}" ng-repeat = "f in files">
+							{{f.name}}
+						</div>
+					</div>
+				</div>
+				<div class="button" ng-click="upload_cur_file()">Upload</div>
+			</div>
+		</div>
+		<div class="cen-con">
+			<div class="col-head">Download from Database</div>
+			<div class="pretextbox">File ID: </div><input type="text" class="textbox" ng-model="datcon.inp_file_id" ng-change="update_disp_cats()"><BR>
+			<div class="toggle" ng-model="datcon.res_show" ng-click="datcon.res_show = !datcon.res_show">Restrictions:</div>
+			<div class="shell" ng-show="datcon.res_show">
+				<div ng-repeat="c in datcon.disp_cats track by $index">
+					<input class="checkbox" type="checkbox" ng-model="datcon.inp_res_ck[$index]" id="{{'res'+datcon.disp_cats[$index]}}">
+					<label for="{{'res'+datcon.disp_cats[$index]}}">{{datcon.disp_cats[$index]}}</label>
+					<input class="textbox_s" type="textbox" ng-model="datcon.inp_res_val[$index]">
+				</div>
+			</div>
+			<div class="toggle" ng-model="datcon.fie_show" ng-click="datcon.fie_show = !datcon.fie_show">Fields:</div>
+			<div class="shell" ng-show="datcon.fie_show">
+				<div ng-repeat="c in datcon.disp_cats track by $index">
+					<input class="checkbox" type="checkbox" ng-model="datcon.inp_fie_ck[$index]" id="{{'fie'+datcon.disp_cats[$index]}}">
+					<label for="{{'fie'+datcon.disp_cats[$index]}}">{{datcon.disp_cats[$index]}}</label>
+				</div>
+			</div>
+			<div class="button" ng-click="update_disp()">Update</div>
+			<div class="dispshell"><div class="dispdata">{{datcon.disp_data}}</div></div>
+		</div>
+		<div class="off-con">
+			<div class="col-head">Apply Functions</div>
+			<div ng-repeat="a in datcon.apply_cat">
+				<div class="toggle" ng-model="a.show" ng-click="a.show = !a.show">{{a.na}}</div>
+				<div ng-show="a.show">
+					<div class="tbsh">
+					<div class="shell">
+						<div class="pretextbox">Category Name: </div><input class="textbox" type="textbox" ng-model="a.na" value = "a.na">
+					</div>
+					</div>
+					<div class="half-l">
+						<div class="shell">
+							<div ng-repeat="c in datcon.apply_opts track by $index">
+								<input class="radio" type="radio" ng-model="a.opt" id="{{'op'+a.na+datcon.apply_opts[$index]}}" value="{{datcon.apply_opts[$index]}}">
+								<label class="rad_s" for="{{'op'+a.na+datcon.apply_opts[$index]}}">{{datcon.apply_opts[$index]}}</label>
+							</div>
+						</div>
+					</div>
+					<div class="half-r">
+						<div class="shell">
+							<div ng-repeat="c in datcon.apply_cats track by $index">
+								<input class="radio" type="radio" ng-model="a.cat" id="{{'ap'+a.na+datcon.apply_cats[$index]}}" value="{{datcon.apply_cats[$index]}}">
+								<label class="rad_s" for="{{'ap'+a.na+datcon.apply_cats[$index]}}">{{datcon.apply_cats[$index]}}</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="button" ng-click="new_apply_cat()">Add Category</div>
+			<div class="button" ng-click="update_apply()">Update</div>
+			<div class="dispshell"><div class="dispdata">{{datcon.apply_data_disp}}</div></div>
+		</div>
+		<div class="right-con">
+			<div class="col-head">Display Data</div>
+			<div class="toggle" ng-model="datcon.opt_show" ng-click="datcon.opt_show = !datcon.opt_show">Display Options:</div>
+			<div class="shell" ng-show="datcon.opt_show">
+				<div ng-repeat="c in datcon.vis_opts track by $index">
+					<input class="radio" type="radio" ng-model="datcon.vis_opt" id="{{'opt'+datcon.vis_opts[$index]}}" value="{{datcon.vis_opts[$index]}}" ng-change="update_vis_opts()">
+					<label for="{{'opt'+datcon.vis_opts[$index]}}">{{datcon.vis_opts[$index]}}</label>
+				</div>
+			</div>
+			<div class="toggle" ng-model="datcon.met_show" ng-click="datcon.met_show = !datcon.met_show">Metrics:</div>
+			<div ng-show="datcon.met_show">
+				<div class="half-l">
+					<div class="half-t">{{datcon.met_one}}</div>
+					<div class="shell">
+					<div ng-repeat="c in datcon.met_one_opts track by $index">
+						<input class="radio" type="radio" ng-model="datcon.met_one_opt" id="{{'optl'+datcon.met_one_opts[$index]}}" value="{{datcon.met_one_opts[$index]}}" ng-change="update_vis()">
+						<label class="rad_s" for="{{'optl'+datcon.met_one_opts[$index]}}">{{datcon.met_one_opts[$index]}}</label>
+					</div>
+					</div>
+				</div>
+				<div class="half-r">
+					<div class="half-t">{{datcon.met_two}}</div>
+					<div class="shell">
+					<div ng-repeat="c in datcon.met_two_opts track by $index">
+						<input class="radio" type="radio" ng-model="datcon.met_two_opt" id="{{'optr'+datcon.met_two_opts[$index]}}" value="{{datcon.met_two_opts[$index]}}" ng-change="update_vis()">
+						<label class="rad_s" for="{{'optr'+datcon.met_two_opts[$index]}}">{{datcon.met_two_opts[$index]}}</label>
+					</div>
+					</div>
+				</div>
+			</div>
+			<div class="button" ng-click="update_vis()">Update</div>
+			<div class="vis-con"></div>
+		</div>
+	</body>
+	<script src="app.js"></script>
+</html>
