@@ -121,7 +121,7 @@
 			return new_objs
 		}
 
-		//Data Download Functions
+	//Data Download Functions
 		$scope.update_disp_cats = function()
 		{
 			var d = $scope.datcon;
@@ -137,7 +137,6 @@
 				d.disp_cats = Object.keys(data[0]).slice(2)
 				$scope.$apply();
 			})
-
 		}
 		$scope.update_disp = function()
 		{
@@ -165,7 +164,7 @@
 			})
 		}
 
-		//"Apply Function" Functions
+	//"Apply Function" Functions
 		$scope.get_apply_cats = function(data)//Update vis cats on data change
 		{
 			var fin = [];
@@ -249,7 +248,7 @@
 			}
 		}
 
-		//Visualization Functions
+	//Visualization Functions
 		$scope.get_vis_cats = function(data)//Update vis cats on data change
 		{
 			var fin = Object.keys(data[0])
@@ -954,7 +953,7 @@
 				.text(function(o,i){return param[i];});*/
 		}
 
-		//Support Functions
+	//Support Functions
 		$scope.upload = function(files){
 			if (files && files.length){
 				for (var i = 0; i < files.length; i++){
