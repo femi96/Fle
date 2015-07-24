@@ -65,7 +65,7 @@
 			.attr("height", this.vis_div.offsetHeight-10-35)
 			.attr("class","svg");
 
-		//Upload Functions
+	//Upload Functions
 		$scope.$watch('files', function (){
 			$scope.upload($scope.files);
 		});
@@ -215,6 +215,10 @@
 				{
 					$scope.apply_stddevfrommean(a)
 				}
+				if(a.opt == 'template matrix function')
+				{
+					$scope.apply_tempmat(a)
+				}
 			}
 			d.apply_data_disp = JSON.stringify(d.apply_data);
 			d.vis_data = d.apply_data;
@@ -245,6 +249,45 @@
 			for(var ind in d.apply_data)
 			{
 				d.apply_data[ind][a.na] = ((getFloat(d.apply_data[ind][a.cat]) - mean)/stddev);
+			}
+		}
+		$scope.apply_tempmat = function(a)
+		{
+			var d = $scope.datcon;
+			var r = apply_datatomat(d.apply_data);
+			//do something
+			apply_mattodata([], [a.na])
+		}
+
+		$scope.apply_datatomat = function(data)//takes data and converts to matrix form
+		{
+			//from json data to matrix and "matrix cat key"
+			var cats = d.apply_cats;
+			var mat = []
+			for(var ind in data)
+			{
+				if(ind == 0)
+				{
+					continue
+				}
+				var props = [];
+				for(var ca in cats)
+				{
+					props.push(getFloat(data[ind][cats[ca]]))
+				}
+				mat.push(props)
+			}
+			return [math.matrix(mat), cats]
+		}
+		$scope.apply_mattodata = function(new_cols, new_cats)//takes new cols and applies it to the data
+		{
+			//matrix and "matrix cat key" to json data
+			for(var v in new_cols)
+			{
+				for(var ind in new_cols[v])
+				{
+					d.apply_data[ind][new_cats[v]] = new_cols[v][ind];
+				}
 			}
 		}
 
